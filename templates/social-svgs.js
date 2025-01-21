@@ -377,16 +377,18 @@ export const SVGs = {
     />
   </svg>`,
   twitch: html`<svg
-    class="social-profile-icon"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 2859 3333"
-    tabindex="0"
-    focusable="true"
-  >
-    <path
-      d="M2081 0c55 473 319 755 778 785v532c-266 26-499-61-770-225v995c0 1264-1378 1659-1932 753-356-583-138-1606 1004-1647v561c-87 14-180 36-265 65-254 86-398 247-358 531 77 544 1075 705 992-358V1h551z"
-    />
-  </svg>`,
+        class="social-profile-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        tabindex="0"
+        focusable="true"
+      >
+        <path
+          d="M21 3V14.74L16.304 19.435H12.391L9.954 21.783H6.913V19.435H3V6.13L4.227 3H21ZM19.435 4.565H6.13V16.305H9.26V18.652L11.609 16.304H16.304L19.434 13.174V4.565H19.435ZM16.305 7.695V12.391H14.739V7.696H16.304L16.305 7.695ZM12.391 7.695V12.391H10.826V7.696H12.391V7.695Z"
+          fill="black"
+        />
+      </svg>`,
   twitter: html`<svg
     class="social-profile-icon"
     viewBox="0 0 24 24"
