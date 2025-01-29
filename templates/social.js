@@ -51,6 +51,7 @@ const socials = [
   { name: "patreon", altText: "Patreon" },
   { name: "pinboard", altText: "Pinboard" },
   { name: "pinterest", altText: "Pinterest" },
+  { name: "pixelfed", altText: "Pixelfed" },
   { name: "podcast", altText: "Podcast" },
   { name: "onlyfans", altText: "OnlyFans" },
   { name: "spotify", altText: "Spotify" },

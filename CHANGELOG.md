@@ -1,3 +1,9 @@
+## Version 1.0.3
+
+**Released 29th January 2025**
+
+- Added Pixelfed social icon
+
 ## Version 1.0.2
 
 **Released 20th November 2024**
