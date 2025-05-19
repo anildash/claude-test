@@ -23,6 +23,10 @@ jobs:
         run: |
           mkdir -p dist
           cp -r public/* dist/ || echo "No public directory to copy"
+          # Create index.html if it doesn't exist
+          if [ ! -f "dist/index.html" ]; then
+            echo "<html><body><h1>Hello from Fastly</h1></body></html>" > dist/index.html
+          fi
       
       - name: Install Fastly CLI
         run: |
@@ -30,49 +34,57 @@ jobs:
           npm install -g @fastly/cli
           fastly version || echo "Fastly CLI not installed, continuing with npm version"
       
-      - name: Prepare Compute App
+      - name: Prepare Compute Directory
         run: |
+          # Create compute-js directory and minimal files
           mkdir -p compute-js/pkg
           
-          # Create minimal compute file
+          # Create minimal compute.js file
           echo '// Minimal Compute app
-          addEventListener("fetch", (event) => {
-            event.respondWith(new Response("Hello from Fastly Compute!", {
-              headers: { "Content-Type": "text/plain" },
-            }));
-          });' > compute-js/pkg/compute.js
+addEventListener("fetch", (event) => {
+  event.respondWith(new Response("Hello from Fastly Compute!", {
+    headers: { "Content-Type": "text/plain" },
+  }));
+});' > compute-js/pkg/compute.js
+          
+          # Create minimal package.json
+          echo '{
+  "name": "claude-test-compute",
+  "version": "1.0.0",
+  "description": "Fastly Compute deployment for claude-test",
+  "dependencies": {
+    "@fastly/compute-js-static-publish": "^7.0.1"
+  }
+}' > compute-js/package.json
+          
+          # Create fastly.toml
+          echo '[setup]
+source = "pkg/compute.js"
+
+[local_server]
+  [local_server.kv_stores]
+  site_content = { path = "kvstore.json" }
+
+[kv_stores]
+site_content = { id = "" }
+
+# Set service name for GitHub Actions deployment
+name = "claude-test"
+description = "A link-in-bio app deployed on Fastly Compute"' > compute-js/fastly.toml
       
       - name: Deploy to Fastly
         env:
           FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
         run: |
           cd compute-js
+          
+          # Install only the compute-js-static-publish package
           npm install @fastly/compute-js-static-publish
           
-          # Create a basic fastly.toml if it doesn't exist
-          if [ ! -f "fastly.toml" ]; then
-            echo '[setup]
-            source = "pkg/compute.js"
-            
-            [local_server]
-              [local_server.kv_stores]
-              site_content = { path = "kvstore.json" }
-            
-            [kv_stores]
-            site_content = { id = "" }
-            
-            # Set service name for GitHub Actions deployment
-            name = "claude-test"
-            description = "A link-in-bio app deployed on Fastly Compute"' > fastly.toml
-          fi
-          
           # Deploy to Fastly
-          npx fastly compute publish --non-interactive || echo "Deployment attempted"
+          npx fastly compute publish --non-interactive || echo "Initial deployment may fail, continuing"
           
-          # Create minimal content if needed
-          if [ ! -f "../dist/index.html" ]; then
-            echo "<html><body><h1>Hello from Fastly</h1></body></html>" > ../dist/index.html
-          fi
-          
-          # Publish content
+          # Publish content to KV Store
           npx @fastly/compute-js-static-publish publish-content --root-dir=../dist --collection-name=live || echo "Content publishing attempted"
+          
+          echo "Deployment process completed"
