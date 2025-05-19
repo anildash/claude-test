@@ -55,3 +55,4 @@ jobs:
           fi
           
           npx @fastly/compute-js-static-publish publish-content --root-dir=../dist --collection-name=live
+
