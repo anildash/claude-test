@@ -1,0 +1,15 @@
+[setup]
+source = "pkg/compute.js"
+[local_server]
+  [local_server.kv_stores]
+  site_content = { path = "kvstore.json" }
+
+[kv_stores]
+site_content = { id = "" }  # This will be populated during deployment
+
+[build]
+command = "npm run fastly:build"
+
+# Set service name for GitHub Actions deployment
+name = "claude-test"
+description = "A link-in-bio app deployed on Fastly Compute"
