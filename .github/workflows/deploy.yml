@@ -1,0 +1,45 @@
+name: Deploy to Fastly Compute
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Set up Compute environment
+        run: |
+          cd compute-js
+          npm ci
+          npm run build
+
+      - name: Install Fastly CLI
+        run: |
+          curl -sfL https://github.com/fastly/cli/releases/latest/download/fastly_linux_amd64.tar.gz | tar -xzf - -C /tmp
+          sudo mv /tmp/fastly /usr/local/bin
+          fastly version
+
+      - name: Deploy to Fastly
+        env:
+          FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+        run: |
+          cd compute-js
+          fastly compute publish --non-interactive
+          npx @fastly/compute-js-static-publish publish-content --root-dir=../dist --collection-name=live
