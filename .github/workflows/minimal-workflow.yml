@@ -34,36 +34,36 @@ jobs:
           npm install -g @fastly/cli
           fastly version || echo "Fastly CLI not installed, continuing with npm version"
       
-      - name: Prepare Compute Directory
+      - name: Create Compute Files
         run: |
-          # Create compute-js directory and minimal files
+          # Set up directories
           mkdir -p compute-js/pkg
           
-          # Create minimal compute.js file
-          cat > compute-js/pkg/compute.js << 'EOF'
-// Minimal Compute app
+          # Create compute.js file
+          echo '
+// A basic Fastly Compute JavaScript application
 addEventListener("fetch", (event) => {
-  event.respondWith(new Response("Hello from Fastly Compute!", {
-    headers: { "Content-Type": "text/plain" },
-  }));
+  event.respondWith(handleRequest(event));
 });
-EOF
+
+async function handleRequest(event) {
+  return new Response("Hello from Fastly Compute!", {
+    headers: { "Content-Type": "text/plain" },
+  });
+}' > compute-js/pkg/compute.js
           
-          # Create minimal package.json
-          cat > compute-js/package.json << 'EOF'
-{
+          # Create package.json file
+          echo '{
   "name": "claude-test-compute",
   "version": "1.0.0",
   "description": "Fastly Compute deployment for claude-test",
   "dependencies": {
     "@fastly/compute-js-static-publish": "^7.0.1"
   }
-}
-EOF
+}' > compute-js/package.json
           
-          # Create fastly.toml
-          cat > compute-js/fastly.toml << 'EOF'
-[setup]
+          # Create fastly.toml file
+          echo '[setup]
 source = "pkg/compute.js"
 
 [local_server]
@@ -73,10 +73,8 @@ source = "pkg/compute.js"
 [kv_stores]
 site_content = { id = "" }
 
-# Set service name for GitHub Actions deployment
 name = "claude-test"
-description = "A link-in-bio app deployed on Fastly Compute"
-EOF
+description = "A link-in-bio app deployed on Fastly Compute"' > compute-js/fastly.toml
       
       - name: Deploy to Fastly
         env:
