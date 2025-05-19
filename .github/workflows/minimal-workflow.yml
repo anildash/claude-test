@@ -16,17 +16,13 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Install Dependencies
-        run: |
-          npm install
-          cd compute-js
-          npm install
+      - name: Install Root Dependencies
+        run: npm install
       
-      - name: Prepare Directories
+      - name: Create Dist Directory
         run: |
           mkdir -p dist
           cp -r public/* dist/ || echo "No public directory to copy"
-          mkdir -p compute-js/pkg
       
       - name: Install Fastly CLI
         run: |
@@ -34,10 +30,10 @@ jobs:
           sudo mv /tmp/fastly /usr/local/bin
           fastly version
       
-      - name: Deploy
-        env:
-          FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+      - name: Prepare Compute App
         run: |
+          mkdir -p compute-js/pkg
+          
           # Create minimal compute file
           echo '// Minimal Compute app
           addEventListener("fetch", (event) => {
@@ -45,9 +41,15 @@ jobs:
               headers: { "Content-Type": "text/plain" },
             }));
           });' > compute-js/pkg/compute.js
+      
+      - name: Deploy to Fastly
+        env:
+          FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+        run: |
+          cd compute-js
+          npm install @fastly/compute-js-static-publish
           
           # Deploy to Fastly
-          cd compute-js
           fastly compute publish --non-interactive || echo "Deployment attempted"
           
           # Create minimal content if needed
@@ -57,3 +59,4 @@ jobs:
           
           # Publish content
           npx @fastly/compute-js-static-publish publish-content --root-dir=../dist --collection-name=live || echo "Content publishing attempted"
+
