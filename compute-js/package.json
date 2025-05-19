@@ -7,16 +7,16 @@
   "scripts": {
     "dev:publish": "npx @fastly/compute-js-static-publish publish-content --root-dir=../public --collection-name=dev --local",
     "dev:start": "fastly compute serve --file=./pkg/compute.js",
-    "build": "js-compute-runtime --enable-logging src/index.js ./pkg/compute.js",
+    "build": "@fastly/js-compute-runtime --enable-logging src/index.js ./pkg/compute.js",
     "fastly:build": "npm run build",
     "fastly:deploy": "fastly compute publish",
-    "fastly:publish": "npx @fastly/compute-js-static-publish publish-content --root-dir=../public --collection-name=live"
+    "fastly:publish": "npx @fastly/compute-js-static-publish publish-content --root-dir=../dist --collection-name=live"
   },
   "dependencies": {
     "@fastly/compute-js-static-publish": "^7.0.1",
     "@fastly/js-compute": "^3.34.0"
   },
   "devDependencies": {
-    "js-compute-runtime": "^0.2.3"
+    "@fastly/js-compute-runtime": "^1.0.1"
   }
 }
