@@ -40,25 +40,30 @@ jobs:
           mkdir -p compute-js/pkg
           
           # Create minimal compute.js file
-          echo '// Minimal Compute app
+          cat > compute-js/pkg/compute.js << 'EOF'
+// Minimal Compute app
 addEventListener("fetch", (event) => {
   event.respondWith(new Response("Hello from Fastly Compute!", {
     headers: { "Content-Type": "text/plain" },
   }));
-});' > compute-js/pkg/compute.js
+});
+EOF
           
           # Create minimal package.json
-          echo '{
+          cat > compute-js/package.json << 'EOF'
+{
   "name": "claude-test-compute",
   "version": "1.0.0",
   "description": "Fastly Compute deployment for claude-test",
   "dependencies": {
     "@fastly/compute-js-static-publish": "^7.0.1"
   }
-}' > compute-js/package.json
+}
+EOF
           
           # Create fastly.toml
-          echo '[setup]
+          cat > compute-js/fastly.toml << 'EOF'
+[setup]
 source = "pkg/compute.js"
 
 [local_server]
@@ -70,7 +75,8 @@ site_content = { id = "" }
 
 # Set service name for GitHub Actions deployment
 name = "claude-test"
-description = "A link-in-bio app deployed on Fastly Compute"' > compute-js/fastly.toml
+description = "A link-in-bio app deployed on Fastly Compute"
+EOF
       
       - name: Deploy to Fastly
         env:
